@@ -5,6 +5,7 @@ import httpx
 from scrapy.selector import Selector
 
 from utils import random_user_agent_headers
+from config import gazp_show_source
 
 
 async def bcs_parser(httpx_client, posted_q, n_test_chars=50, 
@@ -48,12 +49,15 @@ async def bcs_parser(httpx_client, posted_q, n_test_chars=50,
             if head in posted_q:
                 continue
 
-            raw_link = row.xpath('a/@href').extract()
-            link = raw_link[0] if len(raw_link) > 0 else ''
-            if 'author' in link:
-                link = raw_link[1] if len(raw_link) > 1 else ''
+            if gazp_show_source:
+                raw_link = row.xpath('a/@href').extract()
+                link = raw_link[0] if len(raw_link) > 0 else ''
+                if 'author' in link:
+                    link = raw_link[1] if len(raw_link) > 1 else ''
+                post = f'<b>{source}</b>\n{source + link}\n{news_text}'
+            else:
+                post = f'{news_text}'
 
-            post = f'<b>{source}</b>\n{source + link}\n{news_text}'
 
             if send_message_func is None:
                 print(post, '\n')

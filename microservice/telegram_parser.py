@@ -1,7 +1,7 @@
 from collections import deque
 from telethon import TelegramClient, events
 
-from config import api_id, api_hash
+from config import api_id, api_hash, gazp_show_source, telegram_channels
 
 
 def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
@@ -33,13 +33,13 @@ def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
         if head in posted_q:
             return
 
-        source = telegram_channels[event.message.peer_id.channel_id]
-
-        link = f'{source}/{event.message.id}'
-
-        channel = '@' + source.split('/')[-1]
-
-        post = f'<b>{channel}</b>\n{link}\n{news_text}'
+        if gazp_show_source:
+            source = telegram_channels[event.message.peer_id.channel_id]
+            link = f'{source}/{event.message.id}'
+            channel = '@' + source.split('/')[-1]
+            post = f'<b>{channel}</b>\n{link}\n{news_text}'
+        else:
+            post = f'{news_text}'
 
         if send_message_func is None:
             print(post, '\n')
@@ -53,15 +53,6 @@ def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
 
 if __name__ == "__main__":
 
-    telegram_channels = {
-        1099860397: 'https://t.me/rbc_news',
-        1428717522: 'https://t.me/gazprom',
-        1101170442: 'https://t.me/rian_ru',
-        1133408457: 'https://t.me/prime1',
-        1149896996: 'https://t.me/interfaxonline',
-        # 1001029560: 'https://t.me/bcs_express',
-        1203560567: 'https://t.me/markettwits',
-    }
 
     # Очередь из уже опубликованных постов, чтобы их не дублировать
     posted_q = deque(maxlen=20)

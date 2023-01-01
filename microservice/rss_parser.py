@@ -6,6 +6,7 @@ import feedparser
 
 from utils import random_user_agent_headers
 
+from config import gazp_show_source
 
 async def rss_parser(httpx_client, source, rss_link, posted_q, n_test_chars=50, 
                      timeout=2, check_pattern_func=None, 
@@ -43,9 +44,11 @@ async def rss_parser(httpx_client, source, rss_link, posted_q, n_test_chars=50,
             if head in posted_q:
                 continue
 
-            link = entry['link'] if 'link' in entry else ''
-
-            post = f'<b>{source}</b>\n{link}\n{news_text}'
+            if gazp_show_source:
+                link = entry['link'] if 'link' in entry else ''
+                post = f'<b>{source}</b>\n{link}\n{news_text}'
+            else:
+                post = f'{news_text}'
 
             if send_message_func is None:
                 print(post, '\n')
